@@ -1,0 +1,35 @@
+*** Settings ***
+Documentation    百度搜索
+Resource    ../resource/common.txt
+Suite Setup    log to console    "begin to autotest..."
+Suite Teardown    finally out
+
+*** Variables ***
+${url}    http://www.baidu.com
+${browserType}    gc
+${searchText}    robotframework
+
+*** Test Cases ***
+Baidu search
+    enterSite    ${url}    ${browserType}
+
+search suggest
+    wait input element    css=input#kw    ${searchText}
+    sleep    1
+    wait until element is visible    css=div.bdsug    ${timeout}
+    ${suggest count}=    get element count    css=div.bdsug ul li.bdsug-overflow
+    log to console    词条搜索建议数：${suggest count}
+    :FOR    ${index}    IN RANGE    ${suggest count}
+    \    ${num}=    evaluate    ${index}+1
+    \    ${suggest}=    get element attribute    css=div.bdsug ul li:nth-child(${num})    data-key
+    \    log to console    词条搜索建议${num}：${suggest}
+
+search result
+    wait click element    css=input[id="su"]
+    wait until element is visible    css=div[id="content_left"]
+    ${sumtext}    get element attribute    css=span.nums_text    innerText
+    ${time}    get time
+    ${sum}    get Num from String    ${sumtext}
+    log to console    ${time}，搜索结果数目：${sum}
+
+

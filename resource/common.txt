@@ -1,0 +1,41 @@
+*** Settings ***
+Documentation    百度搜索 c:\Python2.7.16\Scripts\robot.exe -F robot:txt d:\python\autotest\testcase\baidu.txt
+Library    collections
+Library    String
+Library    Selenium2Library
+Library    ../library/StringUtil.py
+
+*** Variables ***
+${retry_times}    3
+${timeout}    20s
+${waittime}    5s
+
+*** Keywords ***
+enterSite
+    [Arguments]    ${url}    ${browserType}
+    wait until keyword succeeds    ${retry_times}    ${timeout}    open browser    ${url}    ${browserType}
+    ${title}=    get title
+    run keyword if    '${title}'=='百度一下，你就知道'    run keywords    log to console    标题是：${title}
+    ...    AND    log to console    标题正确...
+    run keyword unless    '${title}'=='百度一下，你就知道'    run keywords    log to console    标题不是：百度一下，你就知道
+    ...    AND    log to console    标题换了？
+    Maximize Browser Window
+    sleep    1
+    ${browserwidth}    ${browserheight}=    get_window_size
+    log to console    浏览器最大化后的宽高：${browserwidth}, ${browserheight}
+
+wait input element
+    [Arguments]    ${ele_locator}    ${input}
+    wait until element is visible    ${ele_locator}    ${waittime}
+    input text    ${ele_locator}    ${input}
+
+wait click element
+    [Arguments]    ${ele_locator}
+    wait until element is visible    ${ele_locator}    ${waittime}
+    wait until element is enabled    ${ele_locator}    ${waittime}
+    click element    ${ele_locator}
+
+finally out
+    close all browsers
+    log to console    "All autotest end..."
+
